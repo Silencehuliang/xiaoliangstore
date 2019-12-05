@@ -86,3 +86,10 @@ class CreateUserSerializer(serializers.ModelSerializer):
             }
         }
 
+    class UserDetailSerializer(serializers.ModelSerializer):
+        """用户个人信息序列化器"""
+
+        class Meta:
+            model = User
+            # 只需要暴露这些字段
+            fields = ('id', 'username', 'mobile')
