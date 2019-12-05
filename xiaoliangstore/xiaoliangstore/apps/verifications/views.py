@@ -47,8 +47,11 @@ class SMSCodeView(GenericAPIView):
         sms_code = '%06d' % random.randint(0, 999999)
         # 保存短信验证码  保存发送记录
         redis_conn = get_redis_connection('verify_codes')
-        redis_conn.setex("sms_%s" % mobile, constants.SMS_CODE_REDIS_EXPIRES, sms_code)
-        redis_conn.setex("send_flag_%s" % mobile, constants.SEND_SMS_CODE_INTERVAL, 1)
+        pl = redis_conn.pipeline()
+        pl.setex('sms_%s' % mobile, constants.SMS_CODE_REDIS_EXPIRES, sms_code)
+        pl.setex('send_flag_%s' % mobile, constants.SEND_SMS_CODE_INTERVAL, 1)
+        # 让管道执行命令
+        pl.execute()
         # 发送短信
         try:
             ccp = CCP()
