@@ -8,5 +8,4 @@ urlpatterns = [
     path(r'^users/$', views.UserView.as_view()),
     path(r'authorizations/', obtain_jwt_token),
     path(r'^user/$', views.UserDetailView.as_view()),
-
 ]

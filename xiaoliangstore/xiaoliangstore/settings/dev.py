@@ -209,3 +209,11 @@ QQ_CLIENT_ID = '101741448'
 QQ_CLIENT_SECRET = '4e12ecc6ce09ae37c946a8b09b69e0c9'
 QQ_REDIRECT_URI = 'http://www.xiaoliangstore.site:8080/oauth_callback.html'
 QQ_STATE = '/index.html'
+
+# 缓存 rest_framework的数据
+REST_FRAMEWORK_EXTENSIONS = {
+    # 缓存时间
+    'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 60,
+    # 缓存存储
+    'DEFAULT_USE_CACHE': 'default',
+}
