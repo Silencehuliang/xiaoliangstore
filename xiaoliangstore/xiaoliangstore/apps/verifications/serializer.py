@@ -18,10 +18,13 @@ class ImageCodeCheckSerializer(serializers.Serializer):
         """校验图片验证码是否正确"""
         image_code_id = attrs['image_code_id']
         text = attrs['text']
+
         # 查询redis数据库，获取真实的验证码
         redis_conn = get_redis_connection('verify_codes')
         # 从redis中获取正确的图形验证码对应的字符串
         real_image_code = redis_conn.get('img_%s' % image_code_id)
+        # 删除redis中的图片验证码
+        redis_conn.delete('img_%s' % image_code_id)
         if real_image_code is None:
             # 过期或者前端胡编乱造的image_code_id
             raise serializers.ValidationError('无效的图片验证码')
