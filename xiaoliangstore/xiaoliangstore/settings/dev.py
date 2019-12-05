@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'rest_framework',
     'verifications.apps.VerificationsConfig',
+    'oauth.apps.OauthConfig',
 ]
 
 MIDDLEWARE = [
@@ -179,6 +180,7 @@ LOGGING = {
     }
 }
 
+# 绑定我们重写的User模型类
 AUTH_USER_MODEL = 'users.User'
 
 # 这些域会被添加到Access-Control-Allow-Origin头中
@@ -188,13 +190,22 @@ CORS_ORIGIN_WHITELIST = (
     'localhost:8080',
     'www.meiduo.site:8080'
 )
-CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
+# 允许携带cookie
+CORS_ALLOW_CREDENTIALS = True
 
+# jwt相关配置
 JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'users.utils.jwt_response_payload_handler',
 }
 
+# 配置认证类
 AUTHENTICATION_BACKENDS = [
     'users.utils.UsernameMobileAuthBackend',
 ]
+
+# 用于QQ登录的配置信息
+QQ_CLIENT_ID = '101741448'
+QQ_CLIENT_SECRET = '4e12ecc6ce09ae37c946a8b09b69e0c9'
+QQ_REDIRECT_URI = 'http://www.xiaoliangstore.site:8080/oauth_callback.html'
+QQ_STATE = '/index.html'

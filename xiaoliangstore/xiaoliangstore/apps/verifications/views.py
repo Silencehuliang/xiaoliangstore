@@ -1,6 +1,4 @@
 import random
-
-from django.template.base import logger
 from django_redis import get_redis_connection
 from django.http.response import HttpResponse
 from rest_framework.generics import GenericAPIView
