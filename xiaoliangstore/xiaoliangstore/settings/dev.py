@@ -181,7 +181,7 @@ LOGGING = {
 AUTH_USER_MODEL = 'users.User'
 
 # 这些域会被添加到Access-Control-Allow-Origin头中
- # 如果允许所有的，就使用 "*"
+# 如果允许所有的，就使用 "*"
 CORS_ORIGIN_WHITELIST = (
     '127.0.0.1:8080',
     'localhost:8080',
