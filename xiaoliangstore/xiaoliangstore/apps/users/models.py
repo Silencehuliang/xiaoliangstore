@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from xiaoliangstore.xiaoliangstore.apps.users.utils import BaseModel
+from xiaoliangstore.apps.users.utils import BaseModel
 
 
 class User(AbstractUser):
