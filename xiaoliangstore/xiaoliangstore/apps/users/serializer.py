@@ -3,6 +3,8 @@ from django_redis import get_redis_connection
 from rest_framework import serializers
 from rest_framework.settings import api_settings
 
+from xiaoliangstore.apps.goods.models import SKU
+from xiaoliangstore.apps.users import constants
 from .models import User, Address
 
 
@@ -86,49 +88,88 @@ class CreateUserSerializer(serializers.ModelSerializer):
             }
         }
 
-    class UserDetailSerializer(serializers.ModelSerializer):
-        """用户个人信息序列化器"""
+class UserDetailSerializer(serializers.ModelSerializer):
+    """用户个人信息序列化器"""
 
-        class Meta:
-            model = User
-            # 只需要暴露这些字段
-            fields = ('id', 'username', 'mobile')
+    class Meta:
+        model = User
+        # 只需要暴露这些字段
+        fields = ('id', 'username', 'mobile')
 
-    class UserAddressSerializer(serializers.ModelSerializer):
+class UserAddressSerializer(serializers.ModelSerializer):
+    """
+    用户地址序列化器
+    """
+    province = serializers.StringRelatedField(read_only=True)
+    city = serializers.StringRelatedField(read_only=True)
+    district = serializers.StringRelatedField(read_only=True)
+    province_id = serializers.IntegerField(label='省ID', required=True)
+    city_id = serializers.IntegerField(label='市ID', required=True)
+    district_id = serializers.IntegerField(label='区ID', required=True)
+
+    class Meta:
+        model = Address
+        exclude = ('user', 'is_deleted', 'create_time', 'update_time')
+
+    def validate_mobile(self, value):
         """
-        用户地址序列化器
+        验证手机号
         """
-        province = serializers.StringRelatedField(read_only=True)
-        city = serializers.StringRelatedField(read_only=True)
-        district = serializers.StringRelatedField(read_only=True)
-        province_id = serializers.IntegerField(label='省ID', required=True)
-        city_id = serializers.IntegerField(label='市ID', required=True)
-        district_id = serializers.IntegerField(label='区ID', required=True)
+        if not re.match(r'^1[3-9]\d{9}$', value):
+            raise serializers.ValidationError('手机号格式错误')
+        return value
 
-        class Meta:
-            model = Address
-            exclude = ('user', 'is_deleted', 'create_time', 'update_time')
-
-        def validate_mobile(self, value):
-            """
-            验证手机号
-            """
-            if not re.match(r'^1[3-9]\d{9}$', value):
-                raise serializers.ValidationError('手机号格式错误')
-            return value
-
-        def create(self, validated_data):
-            """
-            保存
-            """
-            validated_data['user'] = self.context['request'].user
-            return super().create(validated_data)
-
-    class AddressTitleSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
         """
-        地址标题
+        保存
         """
+        validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
 
-        class Meta:
-            model = Address
-            fields = ('title',)
+class AddressTitleSerializer(serializers.ModelSerializer):
+    """
+    地址标题
+    """
+
+    class Meta:
+        model = Address
+        fields = ('title',)
+
+class AddUserBrowsingHistorySerializer(serializers.Serializer):
+    sku_id = serializers.IntegerField(label="商品SKU编号", min_value=1)
+
+    def validate_sku_id(self, value):
+        """
+        检验sku_id是否存在
+        """
+        try:
+            SKU.objects.get(id=value)
+        except SKU.DoesNotExist:
+            raise serializers.ValidationError('该商品不存在')
+        return value
+
+    def create(self, validated_data):
+        # sku_id
+        sku_id = validated_data['sku_id']
+        # user_id
+        user = self.context['request'].user
+        # redis  [6, 1,2,3,4,5]
+        redis_conn = get_redis_connection('history')
+        pl = redis_conn.pipeline()
+        redis_key = 'history_%s' % user.id
+        # 去重
+        pl.lrem(redis_key, 0, sku_id)
+        # 保存 增加
+        pl.lpush(redis_key, sku_id)
+        # 截断
+        pl.ltrim(redis_key, 0, constants.USER_BROWSE_HISTORY_MAX_LIMIT - 1)
+        pl.execute()
+        return validated_data
+
+class SKUSerializer(serializers.ModelSerializer):
+    """
+    SKU序列化器
+    """
+    class Meta:
+        model = SKU
+        fields = ('id', 'name', 'price', 'default_image_url', 'comments')
