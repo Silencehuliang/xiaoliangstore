@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-fromxiaoliangstore.apps.goods.models import SKU
+from xiaoliangstore.apps.goods.models import SKU
 
 
 class CartSerializer(serializers.Serializer):
