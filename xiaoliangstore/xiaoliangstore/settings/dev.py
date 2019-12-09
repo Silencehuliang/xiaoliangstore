@@ -34,6 +34,8 @@ INSTALLED_APPS = [
     'oauth.apps.OauthConfig',
     'ckeditor',  # 富文本编辑器
     'ckeditor_uploader',  # 富文本编辑器上传图片模块
+    'django_crontab',  # 定时任务
+
 ]
 
 MIDDLEWARE = [
@@ -190,7 +192,6 @@ AUTH_USER_MODEL = 'users.User'
 CORS_ORIGIN_WHITELIST = (
     '127.0.0.1:8080',
     'localhost:8080',
-    'www.meiduo.site:8080'
 )
 # 允许携带cookie
 CORS_ALLOW_CREDENTIALS = True
@@ -229,3 +230,15 @@ CKEDITOR_CONFIGS = {
     },
 }
 CKEDITOR_UPLOAD_PATH = '/images'
+
+# 格式是：CRONJOBS = [每个任务一个元组 ]
+# 元组中有3个元素： 执行间隔 任务路径 日志输出文件
+# 执行间隔 ：* * * * * (分 时 日 月 周)
+# * 表示任意， 如果用数字代替，就是特定的， 如果写成 */n 就代表 每n
+CRONJOBS = [
+    # 每5分钟执行一次生成主页静态文件
+    ('*/5 * * * *', 'contents.crons.generate_static_index_html',
+     '>> ' + os.path.join(os.path.dirname(BASE_DIR), "logs/crontab.log"))
+]
+# mac下配置使用utf-8
+CRONTAB_COMMAND_PREFIX = 'LANG=zh_cn.UTF-8'
