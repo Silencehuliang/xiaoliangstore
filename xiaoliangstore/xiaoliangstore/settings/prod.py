@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'users.apps.UsersConfig',
+    'verifications.apps.VerificationsConfig',
+
 ]
 
 MIDDLEWARE = [
@@ -195,7 +197,7 @@ LOGGING = {
 
 REST_FRAMEWORK = {
     # 异常处理
-    'EXCEPTION_HANDLER': 'meiduo_mall.utils.exceptions.exception_handler',
+    'EXCEPTION_HANDLER': 'xiaoliangstore.utils.exceptions.exception_handler',
 }
 
 # 让Django使用自定义的用户模型类
