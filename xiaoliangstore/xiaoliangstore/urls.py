@@ -20,5 +20,4 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     re_path(r'^', include('verifications.urls')),
     re_path(r'^', include('users.urls')),
-
 ]
