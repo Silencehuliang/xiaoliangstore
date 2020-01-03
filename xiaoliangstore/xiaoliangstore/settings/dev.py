@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
-
+import datetime
 import os
 import sys
 
@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'users.apps.UsersConfig',
     'verifications.apps.VerificationsConfig',
-
+    'oauth.apps.OauthConfig',
 ]
 
 MIDDLEWARE = [
@@ -210,3 +210,19 @@ CORS_ORIGIN_WHITELIST = (
     'http://localhost:8080',
 )
 CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
+
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
+    'JWT_RESPONSE_PAYLOAD_HANDLER': 'users.utils.jwt_response_payload_handler',
+}
+
+AUTHENTICATION_BACKENDS = [
+    'users.utils.UsernameMobileAuthBackend',
+]
+
+
+# 用于QQ登录的配置信息
+QQ_CLIENT_ID = ''
+QQ_CLIENT_SECRET = ''
+QQ_REDIRECT_URI = 'http://127.0.0.1:8000/oauth_callback.html'
+QQ_STATE = '/index.html'
